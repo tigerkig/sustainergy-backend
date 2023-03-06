@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>Panel Schedule Report</title>
+        <script>
+            // Polyfill
+            Function.prototype.bind = Function.prototype.bind || function (thisp) {
+                var fn = this;
+                return function () {
+                    return fn.apply(thisp, arguments);
+                };
+            };
+        </script>
+        <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/7.12.1/polyfill.min.js" integrity="sha512-uzOpZ74myvXTYZ+mXUsPhDF+/iL/n32GDxdryI2SJronkEyKC8FBFRLiBQ7l7U/PTYebDbgTtbqTa6/vGtU23A==" crossorigin="anonymous"</script>-->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" type="text/css" />
+        <!--<script src="https://code.jquery.com/jquery-2.2.4.min.js" crossorigin="anonymous"></script>-->
+        <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.css" />-->
+        <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>-->
+        <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.9.0/fullcalendar.min.js"></script>-->
+        <!--https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js-->
+        <link rel="stylesheet" href="{{siteURL}}/static/reports/generate_panel_report.css" type="text/css" />
+        <link rel="stylesheet" href="{{siteURL}}/static/reports/fullcalendar-3.9.0.min.css" type="text/css" />
+        <style type="text/css">
+            @font-face {
+                font-family: "Averta CY-Bold";
+                src: url("{{siteURL}}/static/fonts/AvertaCY-Bold-fixed.otf") format("opentype");
+            }
+            @font-face {
+                font-family: "Averta CY-Semibold";
+                src: url("{{siteURL}}/static/fonts/AvertaCY-Semibold-fixed.otf") format("opentype");
+            }
+        </style>
+
+        <script src="{{siteURL}}/static/reports/jquery-2.2.4.min.js"></script>
+        <script src="{{siteURL}}/static/reports/moment-2.29.4.min.js"></script>
+        <script src="{{siteURL}}/static/reports/fullcalendar-3.9.0.min.js"></script>
+        <script src="{{siteURL}}/static/reports/chart.js"></script>
+        <script>
+            buildingReport = JSON.parse(JSON.stringify("{{report_json}}"));//.replace(/&quot;/ig,'"');
+            buildingReport = JSON.parse(buildingReport.replace(/&quot;/ig,'"'));
+        </script>
+    </head>
+    <body>
+        <div class="firstPage page">
+            <div class="print-container">
+                <div class="logo">
+                    {% if building_info.company.image  %}
+                        <img src="{{building_info.company.image.url}}"/>
+                    {% else %}
+                        <img src="{{cover_image}}"/>
+                    {% endif %}
+                </div>
+
+                <div class="main-header av-bold">
+                    <h1 class="maincolor" style='text-align: left'>Energy Report</h1>
+                    <span class="main-header-date">{{ date.month.long }} {{date.year}}</span>
+                </div>
+                <div class="home-print">
+                    <img src="{{building_info.facility.image.url}}">
+                </div>
+                <div class="address av-bold grey">
+                    <h3 class="av-bold maincolor">{{ building_info.description }}</h3>
+                    {% if building_info.address_line_1 %}<p>{{ building_info.address_line_1 }}</p>{% endif %}
+                    {% if building_info.address_line_2 %}<p>{{ building_info.address_line_2 }}</p>{% endif %}
+                    {% if building_info.city and building_info.province %}<p>{{ building_info.city }} {{building_info.province}}</p>{% endif %}
+                    {% if building_info.postal_code %}<p>{{ building_info.postal_code }}</p>{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="calendarPage page">
+            <div class="widePageContainer">
+                <div class="page-header">
+                    <h2 class="av-bold size-32 maincolor page-header">General Info</h2>
+                </div>
+
+                <div class="building-info">
+                    <div class="image-container">
+                        <img src="{{building_info.facility.image.url}}"/>
+                    </div>
+                    <div class="particulars">
+                        <h3>{{building_info.description}}</h3>
+                        <div class="container">
+                            <div class="column">
+                                <div class="particular">
+                                    <p>type of facility</p>
+                                    <h5>{{building_info.facility.type}}</h5>
+                                </div>
+
+                                <div class="particular">
+                                    <p>year built</p>
+                                    <h5>{{building_info.year_built}}</h5>
+                                </div>
+                            </div>
+                            <div class="column">
+                                <div class="particular">
+                                    <p>square feet</p>
+                                    <h5>{{building_info.squarefootage}}</h5>
+                                </div>
+
+                                <div class="particular">
+                                    <p>square meters</p>
+                                    <h5>{{building_info.square_meters}}</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="operating-hours">
+                    <h2 id="oh-title">Operating Hours for {{date.month.long}} {{date.year}}</h2>
+                    <div id="calendar"></div>
+                    <script>
+                        $(function() {
+                            var month = "{{date.month.int}}";
+                            var year = "{{date.year}}";
+                            var dateString = year + "-" + month + "-14";
+                            var dateMoment = moment(dateString, "YYYY-MM-DD");
+
+                            $('#calendar').fullCalendar({
+                                defaultView: 'month',
+                                header: {
+                                    left: false,
+                                    center: false,
+                                    right: false
+                                },
+                                titleFormat: 'MMMM YYYY',
+                                showNonCurrentDates: false,
+                                defaultDate: dateMoment,
+                                columnHeaderFormat: 'dddd',
+                                height: 700
+                            });
+                        });
+                    </script>
+                </div>
+            </div>
+        </div>
+
+        <div class="energyUsagePage page">
+            <div class="widePageContainer">
+                <div>
+                    <div class="page-header">
+                        <h2 class="av-bold size-32 maincolor page-header">Energy Usage</h2>
+                    </div>
+
+                    <div class="energy-usage-total">
+                        <div class="image-container">
+                            <img src="{{building_info.facility.image.url}}"/>
+                        </div>
+                        <div class="eut-data">
+                            <div class="total-kwh av-bold">
+                                <h2>{{building.total_usage}}<sup>.3</sup><span>kWh</span></h2>
+                                <p class="label">total</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="graph-container" height="135" width="925">
+                            <div class="graph" height="135" width="935">
+                                <canvas id="energyUsageChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="graph-legend">
+                            <div class="graph-legend-start">
+                            </div>
+                            <div class="graph-legend-mid">
+                            </div>
+                            <div class="graph-legend-end">
+                            </div>
+                        </div>
+                        <div class="average-usage-container">
+                            <div class="average-usage-information">
+                                <div class="average">
+                                    <h3 class="av-bold">{{building.hourly_average}}<sup>.6</sup><span>kWh</span></h3>
+                                    <h5>avg.per hour</h5>
+                                </div>
+                                <div class="average">
+                                    <h3 class="av-bold">{{building.daily_average}}<sup>.1</sup><span>kWh</span></h3>
+                                    <h5>avg.per day</h5>
+                                </div>
+                                <div class="average">
+                                    <h3 class="av-bold">{{building.peak_usage}}<sup>.9</sup><span>kWh</span></h3>
+                                    <h5>peak usage</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="energyUsageByDayPage page">
+            <div class="widePageContainer">
+                <div>
+                    <div class="page-header">
+                        <h2 class="av-bold size-32 maincolor page-header">Energy Usage <span>(by day)</span></h2>
+                    </div>
+
+                    <div class="energyUsageContainer">
+                        <div class="energyUseTotal">
+                            <div class="circle-container">
+                                <div class="circle-green">On-hours</div>
+                            </div>
+                            <h2 class="av-bold">{{building.total_on_hours}}<sup>.7</sup><span>kWh</span></h2>
+                            <p class="total">total</p>
+                        </div>
+                        <div class="energyUseInformation">
+                            <h4><span class="green-on"></span> On-hours usage <span class="bluecol">{{building.percent_usage_on}}%</span></h4>
+                            <p class="description">on-hour usage represents how much energy is used during operational hours</p>
+                            <p class="average-title">average usage</p>
+                            <div class="average-energy-container">
+                                <div class="average-energy av-bold">
+                                    <div class="energyPer">
+                                        <h6>{{building.hourly_average_on}} kWh</h6>
+                                        <p>per hour</p>
+                                    </div>
+                                    <div class="energyPer">
+                                        <h6>{{building.daily_average_on}} kWh</h6>
+                                        <p>per day</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="energyUsageContainer">
+                        <div class="energyUseTotal">
+                            <div class="circle-container">
+                                <div class="circle-grey">Off-hours</div>
+                            </div>
+                            <h2 class="av-bold">{{building.total_off_hours}}<sup>.3</sup><span>kWh</span></h2>
+                            <p class="total">total</p>
+                        </div>
+                        <div class="energyUseInformation">
+                            <h4 class="greytxt"><span class="grey-on"></span> Off-hours usage <span class="bluecol">{{building.percent_usage_off}}%</span></h4>
+                            <p class="description">off-hour usage represents how much energy is used during non-operational hours</p>
+                            <p class="average-title">average usage</p>
+                            <div class="average-energy-container">
+                                <div class="average-energy" class="av-bold">
+                                    <div class="energyPer">
+                                        <h6>{{building.hourly_average_off}} kWh</h6>
+                                        <p>per hour</p>
+                                    </div>
+                                    <div class="energyPer">
+                                        <h6>{{building.daily_average_off}} kWh</h6>
+                                        <p>per day</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="energyUsageBreakdownByDayPage page">
+            <div class="widePageContainer">
+                <div>
+                    <div class="page-header">
+                        <h2 class="av-bold size-32 maincolor page-header">Energy Usage <span>(breakdown by day)</span></h2>
+                    </div>
+                    <div class="energy-usage-breakdown av-bold">
+                        <table>
+                            <tr>
+                                <th>Date</th>
+                                <th>Breakdown</th>
+                                <th>Total Usage</th>
+                                <th class="greentxt">On-hours usage</th>
+                                <th class="greytxt">Off-hours usage</th>
+                            </tr>
+                            {% for key in dailyEnergyBreakdown.keys %}
+                                <tr>
+                                    <td>{{key}}</td>
+                                    <td><div class="breakdown" style="width: 118px;"><span style="width: 76px;"></span></div></td>
+                                    <td>{{dailyEnergyBreakdown|get_item:key|get_item:"total_usage"}} kWh</td>
+                                    <td class="greentxt">{{dailyEnergyBreakdown|get_item:key|get_item:"percent_usage_on"}}% - {{dailyEnergyBreakdown|get_item:key|get_item:"total_on_hours"}}  kWh</td>
+                                    <td class="greytxt">{{dailyEnergyBreakdown|get_item:key|get_item:"percent_usage_off"}}% - {{dailyEnergyBreakdown|get_item:key|get_item:"total_off_hours"}} kWh</td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="energyUsageByPanelPage page">
+            <div class="widePageContainer">
+                <div>
+                    <div class="page-header">
+                        <h2 class="av-bold size-32 maincolor page-header">Energy Usage <span>(by Panel)</span></h2>
+                    </div>
+                    <div class="circuit-breakdown av-bold">
+                        <div class="circuit-graph">
+                            <canvas id="panel-percentage-doughnut" width="225" height="225"></canvas>
+                        </div>
+                        <div class="total-energy-measured">
+                            <p class="tem-description">total energy measured</p>
+                            <h2>{{building.total_usage}}<sup>.7</sup></h2>
+                            <p class="units">kWh</p>
+                        </div>
+                    </div>
+                    <div class="energy-usage-panel-breakdown av-bold">
+                        <div class="eupb-column">
+                            {% for panel in panelEnergyReports %}
+                                <div class="eupb-panel">
+                                    <div class="circle-container">
+                                        <span class="circle" style="background: {{panel.colour}};"></span>
+                                    </div>
+                                    <div class="eupb-panel-usage">
+                                        <span><span class="percent-green">{{panel.percentage_total_energy}}%</span> - {{panel.name}} </span>
+                                        <p>{{panel.total_usage}} kWh</p>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="eupb-column">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% for panel in panelEnergyReports %}
+            <div class="panelOverviewPage page" data-panel-id="{{panel.id}}">
+                <div class="widePageContainer">
+                    <div>
+                        <div class="page-header">
+                            <h2 class="av-bold size-32 maincolor page-header">{{ panel.name }} <span>(Overview)</span></h2>
+                        </div>
+
+                        <div class="energy-usage-total">
+                            <div class="image-container">
+                                <img src="https://sustainergy-backend-data.s3.us-west-2.amazonaws.com/assets/panel_schedule.png"/>
+                            </div>
+                            <div class="eut-data">
+                                <div class="total-kwh">
+                                    <h2 class="av-bold">{{panel.total_usage}}<sup>.77</sup><span>kWh</span></h2>
+                                    <p class="label">total</p>
+                                </div>
+                                <div class="average-usage-information">
+                                    <div class="average">
+                                        <h3>{{panel.hourly_average}}<sup>.6</sup><span>kWh</span></h3>
+                                        <h5>avg.per hour</h5>
+                                    </div>
+                                    <div class="average">
+                                        <h3>{{panel.daily_average}}<sup>.1</sup><span>kWh</span></h3>
+                                        <h5>avg.per day</h5>
+                                    </div>
+                                    <div class="average">
+                                        <h3>{{panel.peak_usage}}<sup>.9</sup><span>kWh</span></h3>
+                                        <h5>peak usage</h5>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                        <div class="graph-container" height="135" width="925">
+                            <div class="graph" height="135" width="935">
+                                <canvas id="panel-{{panel.id}}-UsageChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="graph-legend">
+                            <div class="graph-legend-start">
+                            </div>
+                            <div class="graph-legend-mid">
+                            </div>
+                            <div class="graph-legend-end">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="time-usage-stats">
+                        <table>
+                            <tr class="tus-time-use">
+                                <th>Time-Use</th>
+                                <td><div class="circle-green">{{panel.percent_usage_on}}%</div></td>
+                                <td><div class="circle-grey">{{panel.percent_usage_off}}%</div></td>
+                            </tr>
+                            <tr class="tus-on-off-guide av-bold">
+                                <th></th>
+                                <td class="tus-green av-bold">on-hours</td>
+                                <td class="tus-grey av-bold">off-hours</td>
+                            </tr>
+                            <tr class="tus-total-usage">
+                                <th>total usage</th>
+                                <td class="tus-green av-bold">{{panel.total_on_hours}} <span>kWh</span></td>
+                                <td class="tus-grey av-bold">{{panel.total_off_hours}} <span>kWh</span></td>
+                            </tr>
+                            <tr class="tus-average">
+                                <th>avg. per hour</th>
+                                <td class="tus-green">{{panel.hourly_average_on}} kWh</td>
+                                <td class="tus-grey">{{panel.hourly_average_off}} kWh</td>
+                            </tr>
+                            <tr class="tus-average">
+                                <th>avg. per day</th>
+                                <td class="tus-green">{{panel.daily_average_on}} kWh</td>
+                                <td class="tus-grey">{{panel.daily_average_off}} kWh</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            </div>
+            <div class="panelBreakdownByDayPage page" data-panel-id="{{panel.id}}">
+                <div class="widePageContainer">
+                    <div>
+                        <div class="page-header">
+                            <h2 class="av-bold size-32 maincolor page-header">{{ panel.name }} <span>(breakdown by day)</span></h2>
+                        </div>
+                        <div class="energy-usage-breakdown av-bold">
+                            <table>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Breakdown</th>
+                                    <th>Total Usage</th>
+                                    <th class="greentxt">On-hours usage</th>
+                                    <th class="greytxt">Off-hours usage</th>
+                                </tr>
+                                {% for day in panelEnergyReports|match_id:panel.id|get_item:"daily_usage" %}
+                                    {% with day_d=panelEnergyReports|match_id:panel.id|get_item:"daily_usage"|get_item:day %}
+                                        <tr>
+                                            <td>{{day|date_to_str}}</td>
+                                            <td><div class="breakdown" style="width: 118px;"><span style="width: 76px;"></span></div></td>
+                                            <td>{{day_d.total_usage}} kWh</td>
+                                            <td class="greentxt">{{day_d.percent_usage_on}}% - {{day_d.total_on_hours}} kWh</td>
+                                            <td class="greytxt">{{day_d.percent_usage_off}}% - {{day_d.total_off_hours}} kWh</td>
+                                        </tr>
+                                    {% endwith %}
+                                {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </body>
+
+
+    <script>
+        // Logic for adding events to the calendar
+        var calendarInterval = setInterval(updateCalendar, 500);
+
+        function processHour(hour) {
+            if (hour > 12) { return(hour - 12); }
+            else if (hour == 0) { return(12); }
+            else { return(hour); }
+        }
+
+        function updateCalendar() {
+            if (document.querySelectorAll("#calendar td[data-date]").length > 0) {
+                clearInterval(calendarInterval);
+
+                for (var i = 0; i < Object.keys(buildingReport.schedule).length; i++) {
+                    var key = Object.keys(buildingReport.schedule)[i];
+                    var day = buildingReport.schedule[key];
+
+                    //operatingHours.map(function(day) {
+                    var target = document.querySelector('td[data-date="' + day.event_date + '"]');
+
+                    var container = document.createElement("div");
+                    $(container).addClass("timeTitle");
+
+                    if (day.is_closed) {
+                        var eventContainer = document.createElement("div");
+                        eventContainer.classList.add("eventContainer");
+
+                        var closed_text = document.createElement("span");
+                        closed_text.classList.add("table-day-closed");
+                        closed_text.innerText = "CLOSED";
+                        $(container).append(closed_text);
+                        $(eventContainer).append(container);
+                        $(target).append(eventContainer);
+
+                    } else if (day.start_time && day.end_time) {
+                        var startTime = moment(day.event_date + "T" + day.start_time);
+                        var endTime = moment(day.event_date + "T" + day.end_time);
+
+                        var startTimeText = document.createElement("div");
+                        $(startTimeText).addClass("startTimeText");
+
+                        var startTimeHoursText = document.createElement("span");
+                        $(startTimeHoursText).addClass("hoursText");
+                        startTimeHoursText.innerText = processHour(startTime.hours());
+                        $(startTimeText).append(startTimeHoursText);
+                        $(container).append(startTimeText);
+
+                        var startTimeModContainer = document.createElement('div');
+                        startTimeModContainer.classList.add("minutesModContainer");
+
+                        var startTimeMinutesText = document.createElement("div");
+                        startTimeMinutesText.classList.add("minutesText");
+                        startTimeMinutesText.innerText = ":" + (startTime.minutes()<10?'0':'') + startTime.minutes();
+                        $(startTimeModContainer).append(startTimeMinutesText);
+
+                        var startTimeAmPm = document.createElement("div");
+                        startTimeAmPm.classList.add("modifier");
+                        if (startTime.hours() >= 12)
+                            startTimeAmPm.innerText = "pm";
+                        else
+                            startTimeAmPm.innerText = "am";
+                        $(startTimeModContainer).append(startTimeAmPm);
+                        $(startTimeText).append(startTimeModContainer);
+
+                        $(container).append(startTimeText);
+
+
+                        var divider = document.createElement("span");
+                        divider.classList.add("dividerText");
+                        divider.innerText = "-";
+                        $(container).append(divider);
+
+                        var endTimeText = document.createElement("div");
+                        endTimeText.classList.add("endTimeText");
+
+                        var endTimeModContainer = document.createElement('div');
+                        endTimeModContainer.classList.add("minutesModContainer");
+
+
+                        var endTimeHoursText = document.createElement("span");
+                        endTimeHoursText.classList.add("hoursText");
+                        endTimeHoursText.innerText = processHour(endTime.hours());
+                        $(endTimeText).append(endTimeHoursText);
+
+                        var endTimeMinutesText = document.createElement("div");
+                        endTimeMinutesText.classList.add("minutesText");
+                        endTimeMinutesText.innerText = ":" + (endTime.minutes()<10?'0':'') + endTime.minutes();
+                        $(endTimeModContainer).append(endTimeMinutesText);
+                        //endTimeText.append(endTimeMinutesText);
+
+                        var endTimeAmPm = document.createElement("div");
+                        endTimeAmPm.classList.add("modifier");
+                        if (endTime.hours() > 12)
+                            endTimeAmPm.innerText = "pm";
+                        else
+                            endTimeAmPm.innerText = "am";
+                        $(endTimeModContainer).append(endTimeAmPm);
+
+                        $(endTimeText).append(endTimeModContainer);
+                        $(container).append(endTimeText);
+
+                        var hoursContainer = document.createElement("div");
+                        hoursContainer.classList.add("eventDescription");
+
+                        var durationHours = (Math.abs(endTime - startTime) / 36e5).toFixed(2);
+                        if (durationHours % 1 == 0)
+                            durationHours = Number(durationHours).toFixed(0);
+                        var duration = document.createElement("span");
+                        duration.innerText = durationHours + " hours";
+                        $(hoursContainer).append(duration);
+
+
+                        var eventContainer = document.createElement("div");
+                        eventContainer.classList.add("eventContainer");
+
+                        $(eventContainer).append(container);
+                        $(eventContainer).append(hoursContainer);
+                        $(target).append(eventContainer);
+                    }
+                }
+            }
+        }
+    </script>
+    <script type="text/javascript">
+        // Scripts to clean up the formatting after bringing in the report data
+        $(function() {
+            // Energy Usage Page
+            page = $('.energyUsagePage');
+            matches = $(page).find('.total-kwh h2')[0].firstChild.data.match(/(\d+)(\.\d)/);
+
+            if (matches[1].length >= 4) {
+                //var formatted = matches[1].toLocaleString('en-US');
+                thousands = /\B(?=(\d{3})+(?!\d))/g;
+                $(page).find('.total-kwh h2')[0].firstChild.data = matches[1].replace(thousands, ",");
+            } else {
+                $(page).find('.total-kwh h2')[0].firstChild.data = matches[1];
+            }
+
+            $(page).find('.total-kwh h2 sup')[0].textContent = matches[2]
+
+            averages = $('.energyUsagePage .average h3')
+            for (var i = 0; i < averages.length; i++) {
+                matches = averages[i].firstChild.data.match(/(\d+)(\.\d)/);
+                averages[i].firstChild.data = matches[1];
+                averages[i].children[0].textContent = matches[2];
+            }
+
+
+            // Now for the chart
+            ctx = document.getElementById("energyUsageChart").getContext('2d');
+            data = [];
+            chartLabels = [];
+            legendData = []
+
+            var dayKeys = Object.keys(buildingReport.daily);
+            //var daysOfMonth = dayKeys.length;
+            var lastDayOfMonth = dayKeys[dayKeys.length -1].match(/\d{4}-\d{2}-(\d{2})/)[1];
+            for (var i = 0; i < dayKeys.length; i++) {
+                var key = dayKeys[i];
+                var keyDay = key.match(/\d{4}-\d{2}-(\d{2})/)[1];
+
+                if (keyDay == "01" || keyDay == "15" || keyDay == lastDayOfMonth ) {
+                    date = moment(key).format("MMM DD");
+                    chartLabels.push(date);
+                    legendData.push(date);
+                } else {
+                    chartLabels.push('');
+                }
+                data.push(Number(buildingReport.daily[key].total_usage))
+            }
+
+            var chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        fill: 'origin',
+                        data: data,
+                        backgroundColor: "#5698b2",
+                        pointRadius: 0,
+                    }]
+                },
+                options: {
+                    legend: {
+                        display: false
+                    },
+                    scaleShowLabels: false,
+                    plugins: {
+                        filler: {
+                            propagate: true
+                        }
+                    },
+                    scales: {
+                        xAxes: [{
+                            gridLines: {
+                                display: false
+                            },
+                            ticks: {
+                                display: false,
+                                drawTicks: false
+                                //fontSize: 15,
+                                //fontFamily: "'OpenSans-Semibold', 'Open Sans'",
+                                //fontColor: "#0d1758"
+                            }
+                        }],
+                        yAxes: [{
+                            display: true,
+                            ticks: {
+                                display: false,
+                                drawTicks: false,
+                                beginAtZero: true
+                            },
+                            gridLines: {
+                                display: false
+                            }
+                        }]
+                    },
+                }
+            });
+
+            legends = $(page).find('.graph-legend').children();
+
+            for (var i = 0; i < legends.length; i++ ) {
+                legends[i].innerText = legendData[i];
+            }
+        });
+    </script>
+    <script type="text/javascript">
+        $(function() {
+            // EnergyUsage by day Page
+            page = $('.energyUsageByDayPage');
+            totals = $(page).find('.energyUseTotal h2');
+
+            for (var i = 0; i < totals.length; i++) {
+                matches = totals[i].firstChild.data.match(/(\d+)(\.\d)/);
+
+                if (matches[1] >= 4) {
+                    thousands = /\B(?=(\d{3})+(?!\d))/g;
+                    totals[i].firstChild.data = matches[1].replace(thousands, ",");
+                } else {
+                    totals[i].firstChild.date = matches[1];
+                }
+
+                totals[i].children[0].textContent = matches[2]
+            }
+
+            usage_on = buildingReport.building.percent_usage_on;
+            usage_off = buildingReport.building.percent_usage_off;
+
+            green_circle = $(page).find('.circle-green')[0];
+            grey_circle = $(page).find('.circle-grey')[0];
+
+            min = 135; max = 225;
+
+            if (Number(usage_on) > 30) {
+                if (Number(usage_on) >= 60)
+                    usage_on = 60;
+
+                dimensions = min + ((Number(usage_on) - 30) * 3);
+
+                green_circle.style.height = Math.round(dimensions) + "px";
+                green_circle.style.width = Math.round(dimensions) + "px";
+                green_circle.style.lineHeight = Math.round(dimensions) + "px";
+            } else {
+                green_circle.style.height = min + "px";
+                green_circle.style.width = min + "px";
+                green_circle.style.lineHeight = min + "px";
+            }
+
+            if (Number(usage_off) > 30) {
+                if (Number(usage_off) >= 60)
+                    usage_off = 60;
+
+                dimensions = min + ((Number(usage_off) - 30) * 3);
+
+                grey_circle.style.height = Math.round(dimensions) + "px";
+                grey_circle.style.width = Math.round(dimensions) + "px";
+                grey_circle.style.lineHeight = Math.round(dimensions) + "px";
+            } else {
+                grey_circle.style.height = min + "px";
+                grey_circle.style.width = min + "px";
+                grey_circle.style.lineHeight = min + "px";
+            }
+
+        });
+    </script>
+    <script type="text/javascript">
+        $(function() {
+            // EnergyUsageBreakdown Page
+            var dailyUsage = buildingReport.daily;
+
+            var peakUsage = Number(buildingReport.building.peak_usage);
+
+
+            for (var i = 0; i < Object.keys(dailyUsage).length; i++) {
+                var key = Object.keys(dailyUsage)[i];
+                var value = dailyUsage[key];
+
+                var percentPeak = Math.round(((Number(value.total_usage) / peakUsage) * 100));
+                var breakdownWidth = 130 * (percentPeak / 100);
+                var onWidth = (Number(value.percent_usage_on) / 100) * breakdownWidth;
+
+                var dateStamp = moment(key + "T00:00:00");
+                var str_date = dateStamp.format("MMM DD, ddd");
+
+                target_row = $(".energyUsageBreakdownByDayPage .energy-usage-breakdown table tr:contains(" + str_date + ")");
+                $(target_row).find('.breakdown').css('width', breakdownWidth + 'px');
+                $(target_row).find('.breakdown span').css('width', onWidth + 'px');
+            }
+        });
+    </script>
+
+    <script type="text/javascript">
+        $(function() {
+            // This portion is for the PanelOverview pages, iterating over all of them.
+            maxCircle = 200;
+            var pages = $('.panelOverviewPage');
+
+
+            for (var key = 0; key < pages.length; key++) {
+                panelID = pages[key].getAttribute('data-panel-id');
+                panelData = buildingReport.panels[panelID];
+                page = pages[key];
+
+                onSize = Math.round(maxCircle * (panelData.percent_usage_on / 100));
+                offSize = Math.round(maxCircle * (panelData.percent_usage_off / 100));
+
+                if (onSize < 100) { onSize = 100 };
+                if (offSize < 100) { offSize = 100 };
+
+                timeUse = $(pages[key]).find('.tus-time-use');
+                timeUse.find('.circle-green').css("width", onSize + "px").css("height", onSize + "px").css("line-height", onSize + "px");
+                timeUse.find('.circle-grey').css("width", offSize + "px").css("height", offSize + "px").css("line-height", offSize + "px");
+
+
+                // Add comma separator to the page totals
+                (function() {
+                    target = $(page).find('.total-kwh h2');
+                    matches = target[0].firstChild.data.match(/(\d+)/);
+
+                    if (matches[1] >= 4) {
+                        thousands = /\B(?=(\d{3})+(?!\d))/g;
+                        target[0].firstChild.data = matches[1].replace(thousands, ",");
+                    } else {
+                        totals[i].firstChild.date = matches[1];
+                    }
+                })();
+
+                (function() {
+                    targets = $(page).find('tr.tus-total-usage td');
+
+                    for (var i = 0; i < targets.length; i++) {
+                        target = targets[i];
+                        matches = target.firstChild.textContent.match(/(\d+)(\.\d)/);
+
+                        if (matches[i] >= 4) {
+                            thousands = /\B(?=(\d{3})+(?!\d))/g;
+                            target.firstChild.data = matches[1].replace(thousands, ",") + matches[2];
+                        }
+                    }
+                })();
+
+            totals = $(page).find('.energyUseTotal h2');
+
+            for (var i = 0; i < totals.length; i++) {
+                matches = totals[i].firstChild.data.match(/(\d+)(\.\d)/);
+
+                if (matches[1] >= 4) {
+                    thousands = /\B(?=(\d{3})+(?!\d))/g;
+                    totals[i].firstChild.data = matches[1].replace(thousands, ",");
+                } else {
+                    totals[i].firstChild.date = matches[1];
+                }
+
+                totals[i].children[0].textContent = matches[2]
+            }
+
+
+
+
+
+
+            };
+        });
+    </script>
+
+
+    <script type="text/javascript">
+        $(function() {
+            // PanelBreakdownByDay Page
+            // This is working on the report
+            var pages = $('.panelBreakdownByDayPage');
+
+            for (var key = 0; key < pages.length; key++) {
+                var page = pages[key]
+                var panelID = page.getAttribute('data-panel-id');
+                var panelData = buildingReport.panels[panelID];
+                var peakUsage = Number(panelData.peak_usage);
+
+                for (var i = 0; i < Object.keys(panelData.daily_usage).length; i++) {
+                    var date = Object.keys(panelData.daily_usage)[i];
+                    var value = panelData.daily_usage[date];
+
+                    var percentPeak = Math.round(((Number(value.total_usage) / peakUsage) * 100));
+                    var breakdownWidth = 130 * (percentPeak / 100);
+                    var onWidth = (Number(value.percent_usage_on) / 100) * breakdownWidth;
+
+                    var dateStamp = moment(date + "T00:00:00");
+                    var str_date = dateStamp.format("MMM DD, ddd");
+
+                    var target_row = $(page).find(".energy-usage-breakdown table tr:contains(" + str_date +")");
+                    $(target_row).find('.breakdown').css('width', breakdownWidth + "px");
+                    $(target_row).find('.breakdown span').css('width', onWidth + "px");
+                }
+            };
+        });
+    </script>
+
+    <script type="text/javascript">
+        $(function() {
+            // panelOverviewPage
+            // Works on Report
+            var pages = $('.panelOverviewPage');
+
+            for (var i = 0; i < pages.length; i++) {
+                matches = $(pages[i]).find('.total-kwh h2')[0].firstChild.data.match(/(\d+)/);
+
+                if (matches[1].length >= 4) {
+                    $(pages[i]).find('.total-kwh h2')[0].firstChild.data = matches[1];
+                }
+
+                averages = $(pages[i]).find('.average h3');
+
+                for (var v = 0; v < averages.length; v++) {
+                    matches = averages[v].firstChild.data.match(/(\d+)(\.\d)/);
+                    averages[v].firstChild.data = matches[1];
+                    averages[v].children[0].textContent = matches[2];
+                }
+            }
+        });
+    </script>
+
+
+    <script type="text/javascript">
+        $(function() {
+            // Script to handle the EnergyUsageByPanelPage
+            var page = $('.energyUsageByPanelPage');
+
+            matches = $(page).find('.total-energy-measured h2')[0].firstChild.data.match(/(\d+)(\.\d)/);
+
+            if (matches[1].length >= 4) {
+                thousands = /\B(?=(\d{3})+(?!\d))/g;
+                $(page).find('.total-energy-measured h2')[0].firstChild.data = matches[1].replace(thousands, ",");
+            } else {
+                $(page).find('.total-energy-measured h2')[0].firstChild.data = matches[1];
+            }
+            $(page).find('.total-energy-measured h2 sup')[0].textContent = matches[2];
+
+            (function() {
+                panels = $(page).find('.eupb-panel');
+
+                for (var i = 0; i < panels.length; i++) {
+                    panel = panels[i]
+                    target = $(panel).find('.eupb-panel-usage p')[0];
+                    matches = target.textContent.match(/(\d+)(\.?\d)( \w+)/);
+
+                    num = matches[1];
+                    dec = matches[2];
+                    units = matches[3];
+
+                    if (num.length >= 4) {
+                        thousands = /\B(?=(\d{3})+(?!\d))/g;
+                        num = num.replace(thousands, ",");
+                        target.textContent = num + dec + units;
+                    }
+
+                }
+            })();
+
+
+            var canvas = document.getElementById("panel-percentage-doughnut").getContext("2d");
+            var panelData = buildingReport.panels;
+
+            var panelPercentageData = [];
+            var panelColourData = [];
+
+            for (var i = 0; i < Object.keys(panelData).length; i++) {
+                key = Object.keys(panelData)[i];
+                value = panelData[key];
+
+                panelPercentageData.push(value.percentage_total_energy);
+                panelColourData.push(value.colour);
+            };
+
+
+            var data = {
+                datasets: [{
+                    data: panelPercentageData,
+                    backgroundColor: panelColourData,
+                    hoverOffset: 0,
+                    borderWidth: 0
+                }]
+            };
+
+            var config = {
+                type: 'doughnut',
+                data: data,
+                options: {
+                    cutoutPercentage: 65,
+                    rotation: 75,
+                    responsive: false,
+                    responsiveAnimationDuration: 0,
+                    animation: { duration: 0 },
+                    hover: { animationDuration: 0 },
+                    maintainAspectRatio: false
+                }
+            }
+
+            var ppd = new Chart(canvas, config);
+            // Note: I'm going to need to run a script to move overflow elements to the 2nd column, seeing as I don't think I can do that as it presently works...
+        });
+    </script>
+    <script>
+        $(function() {
+            //panelOverviewPage Chart
+            pages = $('.panelOverviewPage');
+
+            for (var p = 0; p < pages.length; p++) {
+                page = pages[p];
+                key = page.getAttribute('data-panel-id');
+                value = buildingReport.panels[key];
+
+                ctx = document.getElementById("panel-" + key +"-UsageChart").getContext('2d');
+                data = [];
+                chartLabels = [];
+
+                var dayKeys = Object.keys(value.daily_usage);
+                var lastDayOfMonth = dayKeys[dayKeys.length -1].match(/\d{4}-\d{2}-(\d{2})/)[1];
+                var legendData = [];
+
+                for (var i = 0; i < dayKeys.length; i++) {
+                    var dayKey = dayKeys[i];
+                    var keyDay = dayKey.match(/\d{4}-\d{2}-(\d{2})/)[1];
+
+                    if (keyDay == "01" || keyDay == "15" || keyDay == lastDayOfMonth ) {
+                        date = moment(dayKey).format("MMM DD");
+                        chartLabels.push(date);
+                        legendData.push(date);
+                    } else {
+                        chartLabels.push('');
+                    }
+                    data.push(Number(value.daily_usage[dayKey].total_usage))
+                }
+
+                var chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: chartLabels,
+                        datasets: [{
+                            fill: 'origin',
+                            data: data,
+                            backgroundColor: "#5698b2",
+                            pointRadius: 0
+                        }]
+                    },
+                    options: {
+                        legend: {
+                            display: false
+                        },
+                        scaleShowLabels: false,
+                        plugins: {
+                            filler: {
+                                propogate: true
+                            }
+                        },
+                        scales: {
+                            xAxes: [{
+                                gridLines: {
+                                    display: false,
+                                },
+                                ticks: {
+                                    display: false,
+                                    drawTicks: false
+                                }
+                            }],
+                            yAxes: [{
+                                display: true,
+                                ticks: {
+                                    display: false,
+                                    drawTicks: false,
+                                    beginAtZero: true
+                                },
+                                gridLines: {
+                                    display: false
+                                }
+                            }]
+                        },
+                    }
+                });
+
+                legends = $(page).find('.graph-legend').children();
+
+                for (var i = 0; i < legends.length; i++) {
+                    legends[i].innerText = legendData[i];
+                }
+
+            }
+        });
+    </script>
+
+
+</html>

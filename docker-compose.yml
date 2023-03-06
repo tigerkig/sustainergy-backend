@@ -1,0 +1,37 @@
+version: "3.9"
+services:
+  api:
+    container_name: Sustainergy-Backend
+    build: .
+    stdin_open: true
+    tty: true
+    environment:
+      DJANGO_CONFIG: "test"
+      DATABASE_HOST: db
+      DATABASE_NAME: Sustainenergy
+      DATABASE_PORT: 3306
+      DATABASE_USER: root
+      DATABASE_USER_PASS: mauFJcuf5dhRMQrjj
+      AWS_ACCESS_KEY_ID: AKIASJ6KGG2X26JPKKMS
+      AWS_SECRET_ACCESS_KEY: 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
+      AWS_S3_ENDPOINT_URL: s3.us-west-2.amazonaws.com
+      AWS_S3_REGION_NAME: us-west-2
+    ports:
+      - 127.0.0.1:8000:8000
+    volumes:
+      - ./:/app
+      - /app.venv/
+    depends_on:
+      - db
+  db:
+    container_name: Sustainergy_Database
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: Sustainenergy
+      MYSQL_ROOT_PASSWORD: mauFJcuf5dhRMQrjj
+    volumes:
+      - /data/db
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - 3306:3306
+    restart: always

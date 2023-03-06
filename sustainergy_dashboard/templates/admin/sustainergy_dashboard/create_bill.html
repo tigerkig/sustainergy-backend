@@ -1,0 +1,182 @@
+{% extends 'admin/base.html' %}
+
+{% block breadcrumbs %}
+    <div class="breadcrumbs custom-nav">
+        <a onclick="showUtilityBills('{{request.GET.building}}')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+            </svg>
+            Utility Bills
+        </a>
+    </div>
+
+    <style>
+    .custom-nav a {
+        display: flex;
+        align-items: center;
+    }
+
+    .custom-nav svg {
+        margin-right: 6px;
+    }
+
+    .custom-nav {
+        padding: 5px 20px;
+    }
+    </style>
+
+    <script>
+        function showUtilityBills(building){
+            window.location.href = window.location.origin + "/utility_bills?" + "building=" + building
+        }
+    </script>
+
+{% endblock %}
+
+
+{% block content %}
+
+<link href="https://netdna.bootstrapcdn.com/bootstrap/2.3.2/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.2.0/css/datepicker.min.css" rel="stylesheet">
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="https://netdna.bootstrapcdn.com/bootstrap/2.3.2/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.2.0/js/bootstrap-datepicker.min.js"></script>
+
+    <div class="create-bill-page">
+        <h4>Yearly Bill Creation</h4>
+        <div class="create-bill-form">
+        <form action="/create_utility_bills" method="POST" enctype="multipart/form-data" role="form" id="bill_form" autocomplete="off">{% csrf_token %}
+             <div class="create-bill-form-data">
+
+              <div class="create-bill-form-data-li">
+
+                <label> Meter </label>
+                <div class="controls   ">
+                    <select required="required" class="select form-control" id="id_meter" name="meter">
+                        {% for meter in meters %}
+                            <option value="{{ meter.meter_id }}" selected> {{meter}}</option>
+                        {% endfor %}
+                    </select>
+
+                    <a class="meter-link" href="/admin/sustainergy_dashboard/newmeter/add/?building={{request.GET.building}}"><span id="plus-sign">+</span> Create Meter </a>
+
+                </div>
+
+                <label> Year </label>
+                <div class="controls">
+                  <input type="text" class="form-control" name="year" id="yearpicker" required="required"/>
+                </div>
+                <span style="color:red" id="year_error" hidden> Year input is required! </span>
+
+              </div>
+             </div>
+
+            <input name="building" type="hidden" value="{{building}}">
+            <input type="button" class="create-bill-form-btn" value="Create" id="submit_bill" onclick="submitForm()">
+        </form>
+    </div>
+    </div>
+
+<script>
+
+  $(document).ready(function(){
+      $("#yearpicker").datepicker({
+         format: "yyyy",
+         viewMode: "years",
+         minViewMode: "years",
+         autoclose:true
+      });
+  })
+
+
+  function submitForm(){
+    if(document.getElementById("yearpicker").value != ''){
+        document.getElementById("submit_bill").disabled = "true";
+        document.getElementById("bill_form").submit();
+    } else{
+        document.getElementById("year_error").removeAttribute("hidden");
+    }
+
+  }
+</script>
+
+
+<style>
+    .create-bill-page h4 {
+    font-size: 16px;
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+
+.create-bill-form {
+    display: flex;
+    justify-content: center;
+    background: #eeeeee;
+    border: 1px solid #cccccc;
+    border-radius: 3px;
+    height: 100%;
+    padding: 36px 0;
+}
+.create-bill-form form {
+    max-width: 300px;
+    width: 100%;
+}
+
+.create-bill-form-data label, .create-bill-form-data input, .create-bill-form-data select {
+    width: 100%;
+}
+
+.create-bill-form form label {font-weight: 900;font-size: 10px;}
+
+.controls {
+    margin-top: 5px;
+    margin-bottom: 3px;
+}
+.create-bill-form-data-li {
+    margin-bottom: 12px;
+}
+.create-bill-form-data input,.create-bill-form-data select {
+    min-height: 27px;
+}
+input.create-bill-form-btn {
+    width: 100%;
+    padding: 13px;
+    height: auto;
+    border-radius: 50px !important;
+    font-size: 14px;
+    margin-top: 20px;
+}
+a.meter-link {
+    position: absolute;
+    right: -7.2vw;
+    top: 0.4vw;
+    font-weight: 900;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.controls {
+    position: relative;
+}
+
+span#plus-sign {
+    font-size: 15px;
+    margin-right: 0.3vw;
+}
+
+select {
+    line-height: 20px;
+}
+
+
+</style>
+
+
+
+
+{% endblock %}
+
+

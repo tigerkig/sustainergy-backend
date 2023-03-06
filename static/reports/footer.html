@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+
+@font-face {
+  font-family: "Averta CY-Bold";
+  font-style: normal;
+  font-weight: 700;
+  src: url("https://anima-uploads.s3.amazonaws.com/5b9675837e37c4000994e7a8/Averta Cyrillic Bold.otf")
+    format("opentype");
+}
+
+      @font-face {
+        font-family: "Averta CY-Semibold";
+        font-style: normal;
+        font-weight: 400;
+        src: url("https://anima-uploads.s3.amazonaws.com/5b9675837e37c4000994e7a8/Averta Cyrillic SemiBold.otf")
+          format("opentype");
+      }
+
+
+      footer {
+        font-family: "Averta CY-Semibold";
+      }
+
+      footer.bottom-foot {
+        position: relative;
+        bottom: 0;
+        /*width: 100%;*/
+        width: 925px;
+        margin: 0 auto;
+        left: 0;
+        right: 0;
+        margin-top: 15px;
+      }
+      .footer-bottom {
+        height: 70px;
+
+      }
+      .footer-bottom .right {
+        /*display: flex;
+          align-items: center;*/
+        float: right;
+        display: table;
+      }
+
+      .footer-bottom .right p {
+        display: table-cell;
+        vertical-align: middle;
+      }
+
+
+      .footer-bottom .left {
+        float: left;
+        display: table;
+        vertical-align: middle;
+      }
+
+      .footer-bottom .left, .footer-bottom .right {
+        margin-top: 10px;
+        margin-bottom: 10px;
+        min-width: 250px;
+      }
+
+      .footer-bottom .right svg {
+        width: 92px;
+        margin-left: 13px;
+      }
+
+      .footer-bottom .right p {
+        width: 92px;
+      }
+
+      .footer-bottom {
+        align-items: center;
+      }
+
+      .footer-bottom p {
+        margin-bottom: 10px;
+        margin-top: 10px;
+      }
+      .blue{background:#4DAAE8}
+      .green{background:#98C355}
+      .yellow{background:#F7CA50}
+      .red{background:#DB4B46}
+      .darkblue{background:#3649a8}
+      .skyblue{background:#3bcdee}
+      .orange{background:#ee8f37}
+      .grey{background:#777}
+      .brown{background: #911120;}
+      .black{background: #000000;}
+      .lightpink{background: #ffadc9;}
+      .purple{background: #994f9b;}
+      .lightyellow{background: #006ba9;}
+      .darksky{background: #006ba9;}
+      .lightpurple{background: #c5bfe6; }
+      .bottom-line {
+        width: 100%;
+        display: flex;
+      }
+
+      .bottom-line div {
+        height: 10px;
+        width: 25%;
+        float: left;
+      }
+
+
+    </style>
+
+    <script>
+      function substitutePdfVariables() {
+        function getParameterByName(name) {
+          var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+          return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+        }
+
+        function substitute(name) {
+          var value = getParameterByName(name);
+          var elements = document.getElementsByClassName(name);
+
+          for (var i = 0; elements && i < elements.length; i++) {
+            elements[i].textContent = value;
+          }
+        }
+
+        ['frompage', 'topage', 'page', 'webpage', 'section', 'subsection', 'subsubsection'].forEach(
+          function(param) {
+            substitute(param);
+          });
+      }
+    </script>
+
+
+
+  </head>
+  <body onload="substitutePdfVariables()">
+    <footer class="bottom-foot"> 
+      <div class="container">
+        <div class="bottom-line"> 
+          <div class="blue"></div>
+          <div class="green"></div>
+          <div class="yellow"></div>
+          <div class="red"></div>
+        </div>
+
+        <div class="footer-bottom d-flex justify-content-between">
+
+          <div class="av-bold maincolor left">
+            <!--<p class="av-bold">Energy Report 2022</p>-->
+            <p class="av-bold">Page <span class="page"></span> of <span class="topage"></span></p>
+          </div>
+
+
+
+
+
+          <div class="av-bold maincolor right">
+            <p>Powered by </p>
+            <svg width="129" height="58" viewBox="0 0 129 58" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M40.3173 38.6663C40.3173 42.1636 37.8985 44.3598 34.9096 44.3598C33.628 44.3598 32.5915 43.9732 31.8394 43.2015V48.1204H27.9766V33.1563H31.6559V34.2544C32.3885 33.3804 33.4655 32.9727 34.9096 32.9727C37.8985 32.9727 40.3173 35.1689 40.3173 38.6663ZM36.4138 38.6663C36.4138 36.9996 35.3969 36.0429 34.0958 36.0429C32.7946 36.0429 31.7778 36.9981 31.7778 38.6663C31.7778 40.3345 32.7946 41.2896 34.0958 41.2896C35.3969 41.2896 36.4138 40.333 36.4138 38.6663Z" fill="black"/>
+              <path d="M49.7109 43.728C49.04 44.1552 48.0442 44.3583 47.0274 44.3583C44.2009 44.3583 42.5538 42.9759 42.5538 40.1494V36.449H40.9473V33.5624H42.5538V30.6953H46.4167V33.5624H48.9377V36.449H46.4167V40.1088C46.4167 40.9226 46.8845 41.3694 47.5749 41.3694C48.0021 41.3694 48.4293 41.2475 48.7542 41.0234L49.7109 43.728Z" fill="black"/>
+              <path d="M50.7676 29.8831C50.7676 28.7248 51.7032 27.8298 53.1262 27.8298C54.5492 27.8298 55.4848 28.6631 55.4848 29.8229C55.4848 31.0428 54.5492 31.9378 53.1262 31.9378C51.7032 31.9363 50.7676 31.0413 50.7676 29.8831ZM51.1948 33.1563H55.0576V44.1763H51.1948V33.1563Z" fill="black"/>
+              <path d="M57.293 36.8973H63.2302V39.8651H57.293V36.8973Z" fill="black"/>
+              <path d="M84.2532 37.8735V44.1763H80.3903V38.5038C80.3903 36.9183 79.739 36.2475 78.7236 36.2475C77.606 36.2475 76.7922 36.9996 76.7922 38.7069V44.1763H72.9293V38.5038C72.9293 36.9183 72.299 36.2475 71.2626 36.2475C70.1239 36.2475 69.3101 36.9996 69.3101 38.7069V44.1763H65.4473V33.1563H69.1266V34.3145C69.96 33.4195 71.1197 32.9727 72.4209 32.9727C73.9251 32.9727 75.2067 33.5218 75.9784 34.7011C76.8523 33.603 78.2152 32.9727 79.8006 32.9727C82.3624 32.9727 84.2532 34.4574 84.2532 37.8735Z" fill="black"/>
+              <path d="M86.2656 29.8831C86.2656 28.7248 87.2013 27.8298 88.6243 27.8298C90.0473 27.8298 90.9829 28.6631 90.9829 29.8229C90.9829 31.0428 90.0473 31.9378 88.6243 31.9378C87.1998 31.9363 86.2656 31.0413 86.2656 29.8831ZM86.6913 33.1563H90.5542V44.1763H86.6913V33.1563Z" fill="black"/>
+              <path d="M102.652 41.2881V44.1748H92.4863V41.8973L97.5902 36.0218H92.6292V33.1548H102.449V35.4111L97.345 41.2866H102.652V41.2881Z" fill="black"/>
+              <path d="M115.441 39.6425H107.431C107.756 40.7601 108.711 41.4115 110.136 41.4115C111.213 41.4115 111.924 41.1061 112.677 40.4563L114.71 42.5712C113.653 43.7506 112.108 44.3598 110.014 44.3598C106.089 44.3598 103.549 41.941 103.549 38.6467C103.549 35.3329 106.132 32.9742 109.608 32.9742C112.862 32.9742 115.504 35.0486 115.504 38.6873C115.503 38.9701 115.461 39.3371 115.441 39.6425ZM107.37 37.6088H111.884C111.681 36.4505 110.826 35.718 109.627 35.718C108.429 35.718 107.594 36.4505 107.37 37.6088Z" fill="black"/>
+              <path d="M129.001 29.0903V44.1763H125.322V43.0782C124.589 43.9521 123.512 44.3598 122.089 44.3598C119.08 44.3598 116.66 42.1636 116.66 38.6467C116.66 35.1494 119.079 32.9743 122.089 32.9743C123.369 32.9743 124.407 33.3398 125.138 34.113V29.0903H129.001ZM125.2 38.6452C125.2 36.9785 124.204 36.0429 122.903 36.0429C121.58 36.0429 120.585 36.9785 120.585 38.6452C120.585 40.333 121.58 41.2881 122.903 41.2881C124.202 41.2881 125.2 40.333 125.2 38.6452Z" fill="black"/>
+              <path d="M2.31641 36.604C2.31641 29.8725 7.36461 25.1192 14.2645 25.1192C21.2487 25.1192 26.2547 29.8725 26.2547 36.604C26.2547 43.3354 21.2487 48.1309 14.2645 48.1309C7.36611 48.1309 2.31641 43.3339 2.31641 36.604ZM20.9538 36.604C20.9538 32.3124 18.0928 29.5777 14.2645 29.5777C10.4784 29.5777 7.61732 32.3124 7.61732 36.604C7.61732 40.8955 10.4784 43.6302 14.2645 43.6302C18.0928 43.6287 20.9538 40.894 20.9538 36.604Z" fill="#4DAAE8"/>
+              <path d="M18.3556 21.7392C22.57 21.7392 25.9865 18.3227 25.9865 14.1082C25.9865 9.89373 22.57 6.47723 18.3556 6.47723C14.1411 6.47723 10.7246 9.89373 10.7246 14.1082C10.7246 18.3227 14.1411 21.7392 18.3556 21.7392Z" fill="#98C355"/>
+              <path d="M3.80871 57.4301C5.91221 57.4301 7.61743 55.7248 7.61743 53.6213C7.61743 51.5178 5.91221 49.8126 3.80871 49.8126C1.70522 49.8126 0 51.5178 0 53.6213C0 55.7248 1.70522 57.4301 3.80871 57.4301Z" fill="#4DAAE8"/>
+              <path d="M46.0477 9.99562C47.9908 9.99562 49.5661 8.42039 49.5661 6.47723C49.5661 4.53407 47.9908 2.95883 46.0477 2.95883C44.1045 2.95883 42.5293 4.53407 42.5293 6.47723C42.5293 8.42039 44.1045 9.99562 46.0477 9.99562Z" fill="#DB4B46"/>
+              <path d="M33.9456 8.85992C36.3922 8.85992 38.3755 6.87656 38.3755 4.42996C38.3755 1.98336 36.3922 0 33.9456 0C31.499 0 29.5156 1.98336 29.5156 4.42996C29.5156 6.87656 31.499 8.85992 33.9456 8.85992Z" fill="#F7CA50"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+
+
+
+  </body>
+</html>
+

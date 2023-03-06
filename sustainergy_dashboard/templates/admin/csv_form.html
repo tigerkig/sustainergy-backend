@@ -1,0 +1,24 @@
+{% extends 'admin/base.html' %}
+{% block content %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+    <style>
+
+        button {
+            width: 100px;
+            min-width: fit-content;
+            margin: 7px 0;
+            color: #333;
+            padding: 4px 6px;
+        }
+    </style>
+    <div>
+        <form class="upload-csv" id="close-upload-csv" action="" method="POST" enctype="multipart/form-data">
+            </div>
+            {{ form.as_p }}
+            {% csrf_token %}
+            <button type="submit">Upload</button>
+        </form>
+    </div>
+    <br />
+
+{% endblock %}

@@ -1,0 +1,203 @@
+{% extends 'admin/base.html' %}
+
+{% block breadcrumbs %}
+    <div class="breadcrumbs custom-nav">
+        <a href="/admin/sustainergy_dashboard/building/{{building}}/change/">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+              <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+            </svg>
+            Building
+        </a>
+    </div>
+
+{% endblock %}
+
+{% block content %}
+
+    <div>
+
+        <div class="categorized-btn-sec">
+            <div class="categorized-btn-cont">
+                {% for utility in utilities %}
+                    <input class="categorized-btn" type="button" value="{{utility}}" id="{{utility}}" onclick="getBills('{{utility}}', '{{building}}')"/>
+                {% endfor %}
+                </div>
+                <div class="create_bill">
+                  <input class="create_bill-btn" type="submit" value="+ Create yearly bills" onclick="createBill('{{building}}')">
+            </div>
+        </div>
+        <div class="year-btn-cont">
+            {% for year in years %}
+                <input class="year-btn" name="year" type="submit" value="{{ year }}" id="{{year}}" onclick="getBillsWithYear('{{selected_utility}}', '{{building}}', '{{year}}')">
+            {% endfor %}
+        </div>
+
+    </div>
+
+    <br>
+
+    <table id="customers">
+        <tr>
+          <th>Billing month</th>
+          <th>Meter</th>
+          <th>Usage</th>
+          <th>Price per unit</th>
+          <th>Total cost</th>
+          <th>Distribution</th>
+          <th>Carbon Levy</th>
+          <th>GST</th>
+          <th>Total Bill</th>
+        </tr>
+        {% for bill in bills %}
+        <tr>
+          <td>{{ bill.statement_date | date:"F" }}, {{bill.statement_date.year}}</td>
+          <td>{{ bill.meter}}</td>
+          <td>{{ bill.usage | default_if_none:"" }}</td>
+          <td>{{ bill.price_per_unit | default_if_none:"" }}</td>
+          <td>{{ bill.total_commodity | default_if_none:""  }}</td>
+          <td>{{ bill.distribution | default_if_none:""  }}</td>
+          <td>{{ bill.carbon_levy | default_if_none:""  }}</td>
+          <td>{{ bill.gst | default_if_none:""  }}</td>
+          <td>{{ bill.total_bill | default_if_none:""  }}</td>
+        </tr>
+        {% endfor %}
+
+
+      </table>
+
+<script>
+    function getBills(utility, building){
+        window.location.href = window.location.origin + "/utility_bills?" + "building=" + building + "&utility=" + utility
+    }
+    function getBillsWithYear(utility, building, year){
+        window.location.href = window.location.origin + "/utility_bills?" + "building=" + building + "&utility=" + utility + "&year=" + year
+    }
+    function createBill(building){
+        window.location.href = window.location.origin + "/create_utility_bills?building="+ building
+    }
+    window.onload = function() {
+        document.getElementById('{{selected_utility}}').className = 'cat-active';
+        document.getElementById('{{selected_year}}').className = 'year-active';
+    };
+</script>
+
+<style>
+.custom-nav a {
+    display: flex;
+    align-items: center;
+}
+
+.custom-nav svg {
+    margin-right: 6px;
+}
+
+.custom-nav {
+    padding: 5px 20px;
+}
+
+.categorized-btn-sec {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 25px;
+}
+input.create_bill-btn {
+    border-radius: 20px !important;
+    padding: 10px 20px;
+    height: auto;
+    font-size: 14px;
+    margin-right: 0px;
+    background-image: linear-gradient(#5e5e5e,#444444);
+}
+
+#customers {
+  border-collapse: collapse;
+  width: 100%;
+  font-family: inherit;
+  margin-top: 23px;
+}
+
+#customers td, #customers th {
+  border: 1px solid #cccccc;
+  padding: 8px 15px;
+  color: #444444;
+  font-weight: 700;
+}
+
+
+#customers tr:hover {background-color: #ddd;}
+
+#customers th {
+  text-align: left;
+  background-color: #fff;
+  color: #aaaaaa;
+}
+
+body {
+    background: #eeeeee;
+}
+
+
+input.year-btn {
+  margin: 0;
+  width: auto;
+  color: #444444;
+  height: auto;
+  font-weight: 900;
+  padding: 6px 12px;
+  margin-right: 13px;
+  background: transparent linear-gradient(180deg, #EEEEEE 0%, #DBDBDB 100%) 0% 0% no-repeat padding-box;
+  border: 1px solid #CCCCCC;
+}
+
+button.active {
+  background-image: linear-gradient(#4fb2d3,#309bbf);
+  color:#fff
+}
+
+.year-btn-cont {
+    margin-top: 20px;
+}
+input.categorized-btn {
+    border-radius: 20px;
+    padding: 10px 20px;
+    height: auto;
+    font-size: 14px;
+    margin-right: 15px;
+    color: #444444;
+    background: transparent;
+    border-color: #444444;
+}
+
+
+body .cat-active, input.categorized-btn:hover {
+    background-image: linear-gradient(#4fb2d3,#309bbf) ;
+    color:#fff;
+    border-radius: 20px;
+    padding: 10px 20px;
+    height: auto;
+    font-size: 14px;
+    margin-right: 15px;
+    height:auto;
+    width:auto;
+    color: #ffffff;
+}
+
+
+body .year-active, year-active:hover {
+    background-image: linear-gradient(#4fb2d3,#309bbf) ;
+    color:#fff;
+    margin-right: 13px;
+    width: auto;
+    height: auto;
+    font-weight: 900;
+    font-size: 12px;
+    padding: 6px 12px;
+}
+
+</style>
+
+
+{% endblock %}
+
+
